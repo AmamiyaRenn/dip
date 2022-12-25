@@ -21,14 +21,13 @@ int gray_center_x = 0;
 int gray_center_y = 0;
 
 // Define File Path
-std::string src_image_path = "../img/5.jpg";
+std::string src_image_path = "../img/8.jpg";
 
 int main()
 {
     MeterReader meter_reader(true);
-    meter_reader.readImg(src_image_path);
+    meter_reader.readImage(src_image_path);
     meter_reader.findCenter();
-    meter_reader.findBigRound();
     meter_reader.findPointer();
     meter_reader.stopDisplay();
 

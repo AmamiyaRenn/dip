@@ -20,7 +20,7 @@ public:
         }
     }
 
-    bool readImg(std::string path)
+    bool readImage(std::string path)
     {
         if (path.find(".jpg") != -1)
         { // 读jpg的情况
@@ -70,33 +70,6 @@ public:
                     cv::circle(show_img, center, cc[2], cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
                     // 画圆心
                     cv::circle(show_img, center, 2, cv::Scalar(127, 255, 127), 1, cv::LINE_AA);
-                    cv::imshow("output", show_img);
-                }
-
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool findBigRound()
-    {
-        cv::Canny(gray_img, canny_img, 100, 200, 3);
-        for (int param2 = 80; param2 >= 20; param2--)
-        {
-            std::vector<cv::Vec3f> pcircles;
-            cv::HoughCircles(canny_img, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, param2, 50, 200);
-            for (auto cc : pcircles)
-            {
-                // center.x += cc[0];
-                // center.y += cc[1];
-
-                if (display)
-                {
-                    // 画圆
-                    cv::circle(show_img, cv::Point(cc[0], cc[1]), cc[2], cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
-                    // 画圆心
-                    cv::circle(show_img, cv::Point(cc[0], cc[1]), 2, cv::Scalar(127, 255, 127), 1, cv::LINE_AA);
                     cv::imshow("output", show_img);
                 }
 
