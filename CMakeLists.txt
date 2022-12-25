@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include_directories(inc)
+include_directories(.)
 
 set(PROJECT_NAME dip)
 

@@ -1,4 +1,5 @@
-﻿#include <iostream>
+﻿#include "meter_reader.h"
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -19,13 +20,23 @@ int                    g_houghValueMax = 100;
 int gray_center_x = 0;
 int gray_center_y = 0;
 
+// Define File Path
+std::string src_image_path = "../img/5.jpg";
+
 int main()
 {
-    // Define Window Name
-    std::string window_name = "Demo";
+    MeterReader meter_reader(true);
+    meter_reader.readImg(src_image_path);
+    meter_reader.findCenter();
+    meter_reader.findBigRound();
+    meter_reader.findPointer();
+    meter_reader.stopDisplay();
 
-    // Define File Path
-    std::string src_image_path = "../img/5.jpg";
+    return 0;
+}
+
+void process()
+{
 
     // Load the image from the given file name
     src_img = cv::imread(src_image_path, 1);
@@ -34,7 +45,7 @@ int main()
     if (src_img.empty())
     {
         printf("Error opening image\n");
-        return -1;
+        return;
     }
 
     cv::namedWindow("Dst", cv::WINDOW_NORMAL);
@@ -46,7 +57,6 @@ int main()
     // gray
     cv::cvtColor(mid_img, gray_img, cv::COLOR_BGR2GRAY);
 
-    // medianBlur filter
     cv::medianBlur(gray_img, gray_img, 3);
 
     cv::threshold(gray_img, bin_img, 130, 255, cv::THRESH_BINARY);
@@ -64,9 +74,8 @@ int main()
     // cv::HoughCircles(gray_img, pcircles, cv::HOUGH_GRADIENT, 1, 50, 80, 50, g_houghValue, g_houghValueMax);
     cv::HoughCircles(gray_img_copy, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, g_houghValue, 2, 200);
     // cv::HoughCircles(gray_img, pcircles, cv::HOUGH_GRADIENT, 1, 50, 80, 80, 50, 200);
-    for (size_t i = 0; i < pcircles.size(); i++)
+    for (auto cc : pcircles)
     {
-        cv::Vec3f cc = pcircles[i];
         // 画圆
         cv::circle(dst_img, cv::Point(cc[0], cc[1]), cc[2], cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
         // 画圆心
@@ -81,8 +90,6 @@ int main()
     // stop
     cv::waitKey(0);
     cv::destroyAllWindows();
-
-    return 0;
 }
 
 void on_HoughCircles(int, void*)
@@ -91,43 +98,13 @@ void on_HoughCircles(int, void*)
     cv::HoughCircles(gray_img_copy, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, g_houghValue, 2, 200);
     // cv::HoughCircles(gray_img, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, 40, 2, 45);
     // cv::HoughCircles(gray_img, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, 50, g_houghValue, g_houghValueMax);
-    for (size_t i = 0; i < pcircles.size(); i++)
+    for (auto cc : pcircles)
     {
-        cv::Vec3f cc = pcircles[i];
-
         cc[0] += gray_center_y;
         cc[1] += gray_center_x;
         // 画圆
         cv::circle(dst_img, cv::Point(cc[0], cc[1]), cc[2], cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
         // 画圆心
         cv::circle(dst_img, cv::Point(cc[0], cc[1]), 2, cv::Scalar(127, 255, 127), 1, cv::LINE_AA);
-    }
-    lineFit();
-    cv::imshow("Dst", dst_img);
-
-    gray_img = gray_img_copy.clone();
-    for (size_t i = 0; i < pcircles.size(); i++)
-    {
-        cv::Vec3f cc = pcircles[i];
-
-        // 画圆
-        cv::circle(gray_img, cv::Point(cc[0], cc[1]), cc[2], cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
-        // 画圆心
-        cv::circle(gray_img, cv::Point(cc[0], cc[1]), 2, cv::Scalar(127, 255, 127), 1, cv::LINE_AA);
-    }
-    cv::imshow("Gray", gray_img);
-}
-
-void lineFit()
-{
-    cv::Canny(gray_origin_img, canny_img, 100, 200, 3);
-    std::vector<cv::Vec4i> lines;
-    cv::HoughLinesP(canny_img, lines, 1., CV_PI / 180, 500, 100, 30);
-    // for (int i = 0; i < lines.size(); ++i)
-    for (auto line : lines)
-    {
-        // cv::Vec4i line_ = lines[i];
-        cv::line(
-            dst_img, cv::Point(line[0], line[1]), cv::Point(line[2], line[3]), cv::Scalar(0, 0, 255), 2, cv::LINE_AA);
     }
 }
