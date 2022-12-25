@@ -36,12 +36,12 @@ public:
             // median blur
             cv::medianBlur(gray_img, gray_img, 3);
 
-            // erode and dilate
+            // erode and dilate(开运算)
             int     kernel_size = 5;
             cv::Mat kernel      = getStructuringElement(cv::MORPH_RECT, cv::Size(kernel_size, kernel_size));
-            cv::erode(gray_img, canny_img, kernel);
-            cv::dilate(canny_img, canny_img, kernel);
-            cv::imshow("erode and dilate", canny_img);
+            cv::erode(gray_img, gray_cut_img, kernel);
+            cv::dilate(gray_cut_img, gray_cut_img, kernel);
+            cv::imshow("erode and dilate", gray_cut_img);
 
             // get cutted gray image
             gray_cut_img = gray_img(cv::Range(center.y = gray_img.size().height * 0.4, gray_img.size().height * 0.7),
