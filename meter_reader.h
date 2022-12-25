@@ -20,7 +20,7 @@ public:
         }
     }
 
-    bool readImg(std::string path)
+    bool readImage(std::string path)
     {
         if (path.find(".jpg") != -1)
         { // 读jpg的情况
@@ -43,26 +43,22 @@ public:
             cv::dilate(canny_img, canny_img, kernel);
             cv::imshow("erode and dilate", canny_img);
 
-            // get cutted gray image
-            gray_cut_img = gray_img(cv::Range(center.y = gray_img.size().height * 0.4, gray_img.size().height * 0.7),
-                                    cv::Range(center.x = gray_img.size().width * 0.4, gray_img.size().width * 0.7));
         } // TODO: read folder
 
         return true;
     }
 
-    // 找到表盘中心，通过获得拟合中心圆的方法
     bool findCenter()
     {
-        cv::Canny(gray_cut_img, canny_img, 100, 200, 3);
-        for (int param2 = 60; param2 >= 20; param2--)
+        cv::Canny(gray_img, canny_img, 100, 200, 3);
+        for (int param2 = 80; param2 >= 40; param2--)
         {
             std::vector<cv::Vec3f> pcircles;
-            cv::HoughCircles(canny_img, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, param2, 2, 200);
+            cv::HoughCircles(canny_img, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, param2, 50, 200);
             for (auto cc : pcircles)
             {
-                center.x += cc[0];
-                center.y += cc[1];
+                center.x = cc[0];
+                center.y = cc[1];
 
                 if (display)
                 {
@@ -70,33 +66,6 @@ public:
                     cv::circle(show_img, center, cc[2], cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
                     // 画圆心
                     cv::circle(show_img, center, 2, cv::Scalar(127, 255, 127), 1, cv::LINE_AA);
-                    cv::imshow("output", show_img);
-                }
-
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool findBigRound()
-    {
-        cv::Canny(gray_img, canny_img, 100, 200, 3);
-        for (int param2 = 80; param2 >= 20; param2--)
-        {
-            std::vector<cv::Vec3f> pcircles;
-            cv::HoughCircles(canny_img, pcircles, cv::HOUGH_GRADIENT, 1, 10, 80, param2, 50, 200);
-            for (auto cc : pcircles)
-            {
-                // center.x += cc[0];
-                // center.y += cc[1];
-
-                if (display)
-                {
-                    // 画圆
-                    cv::circle(show_img, cv::Point(cc[0], cc[1]), cc[2], cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
-                    // 画圆心
-                    cv::circle(show_img, cv::Point(cc[0], cc[1]), 2, cv::Scalar(127, 255, 127), 1, cv::LINE_AA);
                     cv::imshow("output", show_img);
                 }
 
@@ -143,11 +112,10 @@ public:
     }
 
 private:
-    bool      display;      // 是否展示
-    cv::Mat   src_img;      // 原始图像
-    cv::Mat   show_img;     // 用于展示的图像
-    cv::Mat   gray_img;     // 灰度图像
-    cv::Mat   gray_cut_img; // 剪裁过的灰度图像
-    cv::Mat   canny_img;    // 经过canny边缘检测后的图像
+    bool      display;   // 是否展示
+    cv::Mat   src_img;   // 原始图像
+    cv::Mat   show_img;  // 用于展示的图像
+    cv::Mat   gray_img;  // 灰度图像
+    cv::Mat   canny_img; // 经过canny边缘检测后的图像
     cv::Point center;
 };
