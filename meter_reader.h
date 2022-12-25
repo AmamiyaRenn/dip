@@ -35,13 +35,14 @@ public:
             cv::cvtColor(src_img, gray_img, cv::COLOR_BGR2GRAY);
             // median blur
             cv::medianBlur(gray_img, gray_img, 3);
+            // cv::GaussianBlur(gray_img, gray_img, cv::Size(3, 3), 0);
+
+            int     kernel_size = 3;
+            cv::Mat kernel      = getStructuringElement(cv::MORPH_RECT, cv::Size(kernel_size, kernel_size));
 
             // erode and dilate(开运算)
-            int     kernel_size = 5;
-            cv::Mat kernel      = getStructuringElement(cv::MORPH_RECT, cv::Size(kernel_size, kernel_size));
-            cv::erode(gray_img, gray_cut_img, kernel);
-            cv::dilate(gray_cut_img, gray_cut_img, kernel);
-            cv::imshow("erode and dilate", gray_cut_img);
+            cv::morphologyEx(gray_img, gray_blackhat, cv::MORPH_OPEN, kernel);
+            cv::imshow("open", gray_blackhat);
 
             // get cutted gray image
             gray_cut_img = gray_img(cv::Range(center.y = gray_img.size().height * 0.4, gray_img.size().height * 0.7),
@@ -82,7 +83,7 @@ public:
     // 获得指针线
     bool findPointer()
     {
-        cv::Canny(gray_img, canny_img, 100, 200, 3);
+        cv::Canny(gray_blackhat, canny_img, 100, 200, 3);
         if (display)
         {
             cv::imshow("canny", canny_img);
@@ -123,4 +124,6 @@ private:
     cv::Mat   gray_cut_img; // 剪裁过的灰度图像
     cv::Mat   canny_img;    // 经过canny边缘检测后的图像
     cv::Point center;
+
+    cv::Mat gray_blackhat;
 };
