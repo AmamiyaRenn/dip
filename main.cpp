@@ -1,4 +1,5 @@
-﻿#include <iostream>
+﻿#include <cstdlib>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -15,10 +16,10 @@ void on_HoughCircles(int, void*);
 void on_threshold(int, void*);
 
 // Define Variables
-cv::Mat                src_img, mid_img, gray_img, gray_img_copy, gray_origin_img, bin_img, dst_img, canny_img;
+cv::Mat                src_img, dst_img, gray_img, gray_img_copy, canny_img;
 std::vector<cv::Vec3f> pcircles;
 int                    tracker_max = 200;
-int                    tracker_val = 100;
+int                    tracker_val = 200;
 
 int gray_center_x = 0;
 int gray_center_y = 0;
@@ -33,15 +34,16 @@ int main(int argc, char** argv)
         std::cerr << "lack of args" << std::endl;
         return -1;
     }
-    src_image_path += std::string(argv[1]) + ".jpg";
 
-    MeterReader meter_reader(true);
-    meter_reader.readImage(src_image_path);
-    meter_reader.findCenter();
-    meter_reader.findCircle();
-    meter_reader.findPointer();
+    MeterReader meter_reader(50, 0.8); // 2.5级精度
+    // MeterReader meter_reader(7, 4.45); // 0.16级精度
+    // MeterReader meter_reader(28, 4.8); // 0.25级精度
 
-    src_img = meter_reader.getGrayOpenImg();
+    // meter_reader.readMeter(src_image_path + std::string(argv[1]) + ".jpg");
+    meter_reader.readMeterBatch(src_image_path, atoi(argv[1]));
+
+    // src_img = meter_reader.getBinImg();
+    // dst_img = meter_reader.getSrcImg();
     // cv::namedWindow("tracker", cv::WINDOW_NORMAL);
     // cv::createTrackbar("参数值", "tracker", &tracker_val, tracker_max, on_findPointer);
     // cv::createTrackbar("参数值", "tracker", &tracker_val, tracker_max, on_threshold);
@@ -71,7 +73,7 @@ void on_findCenter()
 // 获得指针线
 void on_findPointer(int, void*)
 {
-    cv::Mat show_img = src_img.clone();
+    cv::Mat show_img = dst_img.clone();
 
     cv::Canny(src_img, canny_img, 100, 200, 3);
     // cv::imshow("canny", canny_img);
@@ -84,6 +86,7 @@ void on_findPointer(int, void*)
         cv::line(
             show_img, cv::Point(line[0], line[1]), cv::Point(line[2], line[3]), cv::Scalar(0, 0, 255), 2, cv::LINE_AA);
 
+    // std::cout << lines.size() << "\n";
     if (lines.size() == 2)
     {
         cv::Point2f intersect = MeterReader::getCrossPoint(lines[0], lines[1]);
