@@ -179,9 +179,10 @@ public:
     {
         intersect        = center;
         static bool flag = false;
+        cv::Canny(bin_img, canny_img, 100, 200, 3);
+
         for (int threshold2 = 200; threshold2 >= 45; threshold2--) // 90 45
         {
-            cv::Canny(bin_img, canny_img, 100, 200, 3);
             if (display)
                 cv::imshow("canny", canny_img);
 
